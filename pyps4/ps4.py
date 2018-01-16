@@ -152,9 +152,9 @@ class Ps4(object):
         """Get current status info."""
         return search(self._host)
 
-    def launch(self):
-        """Launch."""
-        launch(self._host, self._creds['user-credential'])
+#    def launch(self):
+#        """Launch."""
+#        launch(self._host, self._creds['user-credential'])
 
     def wakeup(self):
         """Wakeup."""
