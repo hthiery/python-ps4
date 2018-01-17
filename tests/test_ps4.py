@@ -4,9 +4,7 @@ import os
 
 from nose.tools import eq_, ok_
 
-from pyps4 import (
-    get_ddp_search_message, get_ddp_wake_message, open_credential_file,
-    parse_ddp_response)
+import pyps4
 
 CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 'credentials.json')
@@ -15,7 +13,7 @@ CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 class TestPs4(object):
 
     def test_open_credentials_file(self):
-        creds = open_credential_file(CREDENTIALS_FILE)
+        creds = pyps4.open_credential_file(CREDENTIALS_FILE)
 
         ok_('client-type' in creds)
         ok_('auth-type' in creds)
@@ -30,7 +28,7 @@ class TestPs4(object):
         host-request-port:997
         device-discovery-protocol-version:00020020
         system-version:05030061'''
-        data = parse_ddp_response(response)
+        data = pyps4.parse_ddp_response(response)
         eq_(data['status'], 'Ok')
         eq_(data['status_code'], '200')
         eq_(data['host-id'], 'F8461CE2701E')
@@ -48,17 +46,17 @@ class TestPs4(object):
         host-request-port:997
         device-discovery-protocol-version:00020020
         system-version:05030061'''
-        data = parse_ddp_response(response)
+        data = pyps4.parse_ddp_response(response)
         eq_(data['status'], 'Server Standby')
         eq_(data['status_code'], '620')
 
     def test_get_ddp_search_message(self):
-        msg = get_ddp_search_message()
+        msg = pyps4.get_ddp_search_message()
         ok_(msg.startswith('SRCH * HTTP/1.1\n'))
         ok_('device-discovery-protocol-version:00020020\n' in msg)
 
     def test_get_ddp_wake_message(self):
-        msg = get_ddp_wake_message('12345')
+        msg = pyps4.get_ddp_wake_message('12345')
         ok_(msg.startswith('WAKEUP * HTTP/1.1\n'))
         ok_('client-type:a\n' in msg)
         ok_('user-credential:12345\n' in msg)
