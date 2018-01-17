@@ -3,8 +3,7 @@ from __future__ import print_function
 import json
 import logging
 
-from . import ddp
-from .packets import get_public_key
+from .ddp import wakeup, get_status
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,7 +35,7 @@ class Ps4(object):
 
     def get_status(self):
         """Get current status info."""
-        return ddp.get_status(self._host)
+        return get_status(self._host)
 
 #    def launch(self):
 #        """Launch."""
@@ -44,4 +43,4 @@ class Ps4(object):
 
     def wakeup(self):
         """Wakeup."""
-        ddp.wakeup(self._host, self._creds['user-credential'])
+        wakeup(self._host, self._creds['user-credential'])
