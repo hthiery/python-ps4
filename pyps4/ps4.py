@@ -30,10 +30,12 @@ def get_ddp_message(msg_type, data=None):
         for key, value in data.items():
             msg += '{}:{}\n'.format(key, value)
     msg += 'device-discovery-protocol-version:{}\n'.format(DDP_VERSION)
+    msg.encode('utf-8')
     return msg
 
 
 def parse_ddp_response(rsp):
+    rsp.decode('utf-8')
     data = {}
     for line in rsp.splitlines():
         re_status = re.compile(r'HTTP/1.1 (?P<code>\d+) (?P<status>.*)')
@@ -86,7 +88,7 @@ def search(host=None, broadcast=True):
         host = '255.255.255.255'
 
     msg = get_ddp_search_message()
-    sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
+    sock.sendto(msg, (host, DDP_PORT))
     data, addr = sock.recvfrom(1024)
     data = parse_ddp_response(data)
     data['host-ip'] = addr[0]
