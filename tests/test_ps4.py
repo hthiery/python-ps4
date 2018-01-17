@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
+import os
+
 from nose.tools import eq_, ok_
 
 from pyps4 import (
     get_ddp_search_message, get_ddp_wake_message, open_credential_file,
     parse_ddp_response)
 
+CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                'credentials.json')
+
 
 class TestPs4(object):
 
     def test_open_credentials_file(self):
-        creds = open_credential_file('credentials.json')
+        creds = open_credential_file(CREDENTIALS_FILE)
 
         ok_('client-type' in creds)
         ok_('auth-type' in creds)
