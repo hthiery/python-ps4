@@ -31,7 +31,7 @@ class Ps4(object):
         self._credential = None
 
         if credential:
-            self._cred = credential
+            self._credential = credential
         if credentials_file:
             creds = open_credential_file(credentials_file)
             self._credential = creds['user-credential']
