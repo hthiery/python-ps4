@@ -48,8 +48,12 @@ def main(args=None):
                         help='be more verbose')
     parser.add_argument('-H', '--host', type=str, dest='host',
                         help='PS4 IP address', default=None)
-    parser.add_argument('-c', '--credential', type=str, dest='credential_file',
+    parser.add_argument('-c', '--credential_file', type=str,
+                        dest='credential_file', default=None,
                         help='The credential file')
+    parser.add_argument('-C', '--credential', type=str,
+                        dest='credential', default=None,
+                        help='The credential as string')
     parser.add_argument('-V', '--version', action='version',
                         version='{version}'.format(version=__version__),
                         help='Print version')
@@ -79,7 +83,8 @@ def main(args=None):
         logging.getLogger('pyps4').setLevel(logging.DEBUG)
 
     try:
-        playstation = pyps4.Ps4(args.host, args.credential_file)
+        playstation = pyps4.Ps4(args.host, credential=args.credential,
+                                credentials_file=args.credential_file)
         playstation.open()
         args.func(playstation, args)
     finally:
