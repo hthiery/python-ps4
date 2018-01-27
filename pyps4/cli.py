@@ -6,6 +6,7 @@ from __future__ import print_function
 import argparse
 import logging
 import pprint
+import sys
 
 import pyps4
 
@@ -38,6 +39,37 @@ def cmd_launch(playstation, _):
 def cmd_wakeup(playstation, _):
     """Wakeup the PS4."""
     playstation.wakeup()
+
+def cmd_login(playstation, _):
+    """Login the PS4."""
+    status = playstation.get_host_status()
+    if status != 'Ok':
+        print('playstaion not ready')
+        sys.exit(1)
+    playstation.open()
+    playstation.login()
+
+
+def cmd_standby(playstation, _):
+    """Set the PS4 in standby."""
+    status = playstation.get_host_status()
+    if status != 'Ok':
+        print('playstaion not ready')
+        sys.exit(1)
+    playstation.open()
+    playstation.login()
+    playstation.standby()
+
+
+def cmd_start_title(playstation, args):
+    """Set the PS4 in standby."""
+    status = playstation.get_host_status()
+    if status != 'Ok':
+        print('playstaion not ready')
+        sys.exit(1)
+    playstation.open()
+    playstation.login()
+    playstation.start_title(args.title_id)
 
 
 def main(args=None):
@@ -76,19 +108,35 @@ def main(args=None):
     subparser = _sub.add_parser('wakeup', help='Wakeup the PS4')
     subparser.set_defaults(func=cmd_wakeup)
 
+    # login
+    subparser = _sub.add_parser('login', help='Login the PS4')
+    subparser.set_defaults(func=cmd_login)
+
+    # standby
+    subparser = _sub.add_parser('standby', help='Standby the PS4')
+    subparser.set_defaults(func=cmd_standby)
+
+    # start
+    subparser = _sub.add_parser('start', help='Start a title')
+    subparser.add_argument('title_id', type=str,
+                metavar="TITLE", help='Game title')
+    subparser.set_defaults(func=cmd_start_title)
+
     args = parser.parse_args(args)
 
-    logging.basicConfig()
+    playstation = None
+
     if args.verbose:
+        logging.basicConfig()
         logging.getLogger('pyps4').setLevel(logging.DEBUG)
 
     try:
         playstation = pyps4.Ps4(args.host, credential=args.credential,
                                 credentials_file=args.credential_file)
-        playstation.open()
         args.func(playstation, args)
     finally:
-        playstation.close()
+        #playstation.close()
+        pass
 
 
 if __name__ == '__main__':
