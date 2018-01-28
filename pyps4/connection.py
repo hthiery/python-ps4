@@ -23,6 +23,11 @@ PUBLIC_KEY = (
     '-----END PUBLIC KEY-----')
 
 
+def _get_public_key_rsa():
+    key = RSA.importKey(PUBLIC_KEY)
+    return key.publickey()
+
+
 class Connection(object):
     """The TCP connection class."""
     def __init__(self, host, credential=None, port=997):
@@ -32,12 +37,14 @@ class Connection(object):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._cipher = None
         self._decipher = None
-        self._random_seed = \
-            b'\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        self._random_seed = None
 
     def connect(self):
         """Open the connection."""
+        _LOGGER.debug('Connect')
         self._socket.connect((self._host, self._port))
+        self._random_seed = \
+            b'\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
         self._send_hello_request()
         data = self._recv_hello_request()
         self._set_crypto_init_vector(data.seed)
@@ -46,9 +53,11 @@ class Connection(object):
     def disconnect(self):
         """Close the connection."""
         self._reset_crypto_init_vector()
+        self._random_seed = None
 
     def login(self):
         """Login."""
+        _LOGGER.debug('Login')
         self._send_login_request()
         msg = self._recv_msg()
         msg = self._decipher.decrypt(msg)
@@ -56,6 +65,7 @@ class Connection(object):
 
     def standby(self):
         """Request standby."""
+        _LOGGER.debug('Request standby')
         self._send_standby_request()
         msg = self._recv_msg()
         msg = self._decipher.decrypt(msg)
@@ -63,16 +73,20 @@ class Connection(object):
 
     def start_title(self, title_id):
         """Start an application/game title."""
+        _LOGGER.debug('Start title: %s', title_id)
         self._send_boot_request(title_id)
         msg = self._recv_msg()
         msg = self._decipher.decrypt(msg)
         _LOGGER.debug('RX: %s %s', len(msg), binascii.hexlify(msg))
 
-    def _send_msg(self, msg):
+    def _send_msg(self, msg, encrypted=False):
         _LOGGER.debug('TX: %s %s', len(msg), binascii.hexlify(msg))
+        if encrypted:
+            msg = self._cipher.encrypt(msg)
+            _LOGGER.debug('TX(encypted): %s %s', len(msg), binascii.hexlify(msg))
         self._socket.send(msg)
 
-    def _recv_msg(self):
+    def _recv_msg(self, encrypted=False):
         msg = self._socket.recv(1024)
         _LOGGER.debug('RX: %s %s', len(msg), binascii.hexlify(msg))
         return msg
@@ -85,10 +99,6 @@ class Connection(object):
         self._cipher = None
         self._decipher = None
 
-    def _get_public_key_rsa(self):
-        key = RSA.importKey(PUBLIC_KEY)
-        public_key = key.publickey()
-        return public_key
 
     def _send_hello_request(self):
         fmt = Struct(
@@ -122,7 +132,7 @@ class Connection(object):
             'seed' / Bytes(16),
         )
 
-        recipient_key = self._get_public_key_rsa()
+        recipient_key = _get_public_key_rsa()
         cipher_rsa = PKCS1_OAEP.new(recipient_key)
         key = cipher_rsa.encrypt(self._random_seed)
 
@@ -155,8 +165,7 @@ class Connection(object):
         _LOGGER.debug('config %s', config)
 
         msg = fmt.build(config)
-        msg = self._cipher.encrypt(msg)
-        self._send_msg(msg)
+        self._send_msg(msg, encrypted=True)
 
     def _send_standby_request(self):
         fmt = Struct(
@@ -166,8 +175,7 @@ class Connection(object):
         )
 
         msg = fmt.build({})
-        msg = self._cipher.encrypt(msg)
-        self._send_msg(msg)
+        self._send_msg(msg, encrypted=True)
 
     def _send_boot_request(self, title_id):
         fmt = Struct(
@@ -178,5 +186,4 @@ class Connection(object):
         )
 
         msg = fmt.build({'title_id': title_id.encode().ljust(16, b'\x00')})
-        msg = self._cipher.encrypt(msg)
-        self._send_msg(msg)
+        self._send_msg(msg, encrypted=True)
