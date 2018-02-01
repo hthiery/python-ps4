@@ -85,7 +85,7 @@ class Connection(object):
         _LOGGER.debug('TX: %s %s', len(msg), binascii.hexlify(msg))
         if encrypted:
             msg = self._cipher.encrypt(msg)
-            _LOGGER.debug('TX(encypted): %s %s', len(msg), binascii.hexlify(msg))
+            _LOGGER.debug('TX(cypted): %s %s', len(msg), binascii.hexlify(msg))
         self._socket.send(msg)
 
     def _recv_msg(self, encrypted=False):
