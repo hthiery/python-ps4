@@ -40,36 +40,39 @@ def cmd_wakeup(playstation, _):
     """Wakeup the PS4."""
     playstation.wakeup()
 
+
 def cmd_login(playstation, _):
     """Login the PS4."""
-    status = playstation.get_host_status()
-    if status != 'Ok':
+    try:
+        playstation.open()
+        playstation.login()
+        playstation.close()
+    except pyps4.NotReady:
         print('playstaion not ready')
         sys.exit(1)
-    playstation.open()
-    playstation.login()
 
 
 def cmd_standby(playstation, _):
     """Set the PS4 in standby."""
-    status = playstation.get_host_status()
-    if status != 'Ok':
+    try:
+        playstation.open()
+        playstation.standby()
+        playstation.close()
+    except pyps4.NotReady:
         print('playstaion not ready')
         sys.exit(1)
-    playstation.open()
-    playstation.login()
-    playstation.standby()
 
 
 def cmd_start_title(playstation, args):
     """Set the PS4 in standby."""
-    status = playstation.get_host_status()
-    if status != 'Ok':
+    try:
+        playstation.open()
+        playstation.login()
+        playstation.start_title(args.title_id)
+        playstation.close()
+    except pyps4.NotReady:
         print('playstaion not ready')
         sys.exit(1)
-    playstation.open()
-    playstation.login()
-    playstation.start_title(args.title_id)
 
 
 def main(args=None):
@@ -119,7 +122,7 @@ def main(args=None):
     # start
     subparser = _sub.add_parser('start', help='Start a title')
     subparser.add_argument('title_id', type=str,
-                metavar="TITLE", help='Game title')
+                           metavar="TITLE", help='Game title')
     subparser.set_defaults(func=cmd_start_title)
 
     args = parser.parse_args(args)
@@ -135,7 +138,6 @@ def main(args=None):
                                 credentials_file=args.credential_file)
         args.func(playstation, args)
     finally:
-        #playstation.close()
         pass
 
 

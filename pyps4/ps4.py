@@ -6,6 +6,7 @@ import time
 
 from .connection import Connection
 from .ddp import get_status, launch, wakeup
+from .errors import NotReady
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,9 +45,9 @@ class Ps4(object):
 
     def open(self):
         """Open a connection to the PS4."""
-        status = self.get_status()
-        print(status)
-        self.wakeup()
+        status = self.get_host_status()
+        if status != 'Ok':
+            raise NotReady
         self.launch()
         time.sleep(0.5)
 
@@ -56,7 +57,8 @@ class Ps4(object):
 
     def close(self):
         """Close the connection to the PS4."""
-        pass
+        self._connection.disconnect()
+        self._connected = False
 
     def get_status(self):
         """Get current status info."""

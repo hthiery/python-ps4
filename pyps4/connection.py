@@ -34,7 +34,7 @@ class Connection(object):
         self._host = host
         self._credential = credential
         self._port = port
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket = None
         self._cipher = None
         self._decipher = None
         self._random_seed = None
@@ -42,6 +42,7 @@ class Connection(object):
     def connect(self):
         """Open the connection."""
         _LOGGER.debug('Connect')
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect((self._host, self._port))
         self._random_seed = \
             b'\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
@@ -52,6 +53,7 @@ class Connection(object):
 
     def disconnect(self):
         """Close the connection."""
+        self._socket.close()
         self._reset_crypto_init_vector()
         self._random_seed = None
 
@@ -98,7 +100,6 @@ class Connection(object):
     def _reset_crypto_init_vector(self):
         self._cipher = None
         self._decipher = None
-
 
     def _send_hello_request(self):
         fmt = Struct(
