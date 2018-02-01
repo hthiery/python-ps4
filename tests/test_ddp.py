@@ -18,7 +18,7 @@ class TestPs4(object):
         system-version:05030061'''
         data = pyps4.parse_ddp_response(response)
         eq_(data['status'], 'Ok')
-        eq_(data['status_code'], '200')
+        eq_(data['status_code'], 200)
         eq_(data['host-id'], 'F8461CE2701E')
         eq_(data['host-type'], 'PS4')
         eq_(data['host-name'], 'PS4')
@@ -36,7 +36,7 @@ class TestPs4(object):
         system-version:05030061'''
         data = pyps4.parse_ddp_response(response)
         eq_(data['status'], 'Server Standby')
-        eq_(data['status_code'], '620')
+        eq_(data['status_code'], 620)
 
     def test_get_ddp_search_message(self):
         msg = pyps4.get_ddp_search_message()

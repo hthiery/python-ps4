@@ -3,6 +3,7 @@
 import os
 
 from nose.tools import eq_, ok_
+from mock import MagicMock
 
 import pyps4
 
@@ -33,3 +34,43 @@ class TestPs4(object):
         ok_('client-type' in creds)
         ok_('auth-type' in creds)
         ok_('user-credential' in creds)
+
+    def test_get_host_status(self):
+        mock = MagicMock()
+        mock.side_effect = [
+            {'status_code': 200},
+            {'status_code': 620},
+        ]
+
+        playstation = pyps4.Ps4('10.10.10.10')
+        playstation.get_status = mock
+        eq_(playstation.get_host_status(), 200)
+        eq_(playstation.get_host_status(), 620)
+
+    def test_is_running(self):
+        mock = MagicMock()
+        mock.side_effect = [
+            {'status_code': 200},
+            {'status_code': 620},
+            {'status_code': 100},
+        ]
+
+        playstation = pyps4.Ps4('10.10.10.10')
+        playstation.get_status = mock
+        eq_(playstation.is_running(), True)
+        eq_(playstation.is_running(), False)
+        eq_(playstation.is_running(), False)
+
+    def test_is_standby(self):
+        mock = MagicMock()
+        mock.side_effect = [
+            {'status_code': 620},
+            {'status_code': 200},
+            {'status_code': 100},
+        ]
+
+        playstation = pyps4.Ps4('10.10.10.10')
+        playstation.get_status = mock
+        eq_(playstation.is_standby(), True)
+        eq_(playstation.is_standby(), False)
+        eq_(playstation.is_standby(), False)

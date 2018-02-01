@@ -19,6 +19,9 @@ def open_credential_file(filename):
 class Ps4(object):
     """The PS4 object."""
 
+    STATUS_OK = 200
+    STATUS_STANDBY = 620
+
     def __init__(self, host, credential=None, credentials_file=None,
                  broadcast=False):
         """Initialize the instance.
@@ -45,13 +48,12 @@ class Ps4(object):
 
     def open(self):
         """Open a connection to the PS4."""
-        status = self.get_host_status()
-        if status != 'Ok':
+        if self.get_host_status() != self.STATUS_OK:
             raise NotReady
-        self.launch()
-        time.sleep(0.5)
 
         if not self._connected:
+            self.launch()
+            time.sleep(0.5)
             self._connection.connect()
             self._connected = True
 
@@ -61,13 +63,11 @@ class Ps4(object):
         self._connected = False
 
     def get_status(self):
-        """Get current status info."""
-        return get_status(self._host)
+        """Get current status info.
 
-    def get_host_status(self):
-        """Get current status."""
-        status = get_status(self._host)
-        return status['status']
+        Return a dictionary with status information.
+        """
+        return get_status(self._host)
 
     def launch(self):
         """Launch."""
@@ -88,6 +88,21 @@ class Ps4(object):
     def start_title(self, title_id):
         if self._connected:
             self._connection.start_title(title_id)
+
+    def get_host_status(self):
+        """Get PS4 status code.
+
+        STATUS_OK: 200
+        STATUS_STANDBY: 620
+        """
+        status = self.get_status(self._host)
+        return status['status_code']
+
+    def is_running(self):
+        return True if self.get_host_status() == 200 else False
+
+    def is_standby(self):
+        return True if self.get_host_status() == 620 else False
 
     def get_system_version(self):
         """Get the system version."""
