@@ -67,7 +67,6 @@ def cmd_start_title(playstation, args):
     """Set the PS4 in standby."""
     try:
         playstation.open()
-        playstation.login()
         playstation.start_title(args.title_id)
         playstation.close()
     except pyps4.NotReady:

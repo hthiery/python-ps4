@@ -84,10 +84,12 @@ class Ps4(object):
 
     def standby(self):
         if self._connected:
+            self._connection.login()
             self._connection.standby()
 
     def start_title(self, title_id):
         if self._connected:
+            self._connection.login()
             self._connection.start_title(title_id)
 
     def get_host_status(self):
