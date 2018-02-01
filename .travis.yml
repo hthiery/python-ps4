@@ -14,3 +14,10 @@ script:
 - nosetests --with-coverage
 after_success:
 - coveralls
+deploy:
+  provider: pypi
+  user: hthiery
+  password:
+    secure: oYABOrGYP7Jbrlurm9Htll+szbbc6TMPfokLOQvdQMIA/hOfmVYalN4l6te0zwzuUgP9fkf85ueq1cDuazmInzRWFWdMrIwA9za2uVeMD23Qm5BUL7Y6ris4ZfO6KLt7SCqXp7FmuYwSW1N67gql3DMaGk1GReYcmUjPcFMLjaeWMRyzLjeuPB/psblUFYFQdc9//PL14MNHCGWbn+o0sbn1DorDZ+BVW7+JzJXqO3CAzOD2e6g/+e6qbBs/Yi2sCXl5cKPqVg6QbGWSPMMVikVkPMfVsB9bFqkLBQxIn0iZqdJBR8fV44izn1qA6EPPBbM4GY0Pqp9sSgCAH9mxYF0ESfQf9B8JtZ7hD9L9sP7W40KnutWoEymw2rnBoA1hRxMIwvnax8hR2hYMM0V5BjIetD5aZBJLay1V/dOh8HqiUlW7DOqHBNWIEqwzHY8yo2cs6iHsHplengeHqBjbBwXZfTluxcpIXbeqHFu1LW4V7s2uKUTOdp4UekVS79CPEyh3pgedRRRDyhg9XJzJrwPYXdXeCt6tZNINe4ae7/yIXIw18+fTXh+/GdiERAl9YYNrjIhz5hJozxPgZyGONiZBgB1TGgC+9m73zXgZIMlkxBom5UGIJBypA98lsviF/IlF/xrmOv091CPMt9QDBQFkR/YLEaIc9vzsLTWCXpc=
+  on:
+    tags: true
