@@ -22,6 +22,7 @@ def get_ddp_message(msg_type, data=None):
 
 
 def parse_ddp_response(rsp):
+    """Parse the response."""
     data = {}
     for line in rsp.splitlines():
         re_status = re.compile(r'HTTP/1.1 (?P<code>\d+) (?P<status>.*)')
@@ -63,22 +64,33 @@ def get_ddp_launch_message(credential):
     return get_ddp_message('LAUNCH', data)
 
 
-def search(host=None, broadcast=True):
-    """Discover PS4s."""
+def _send_recv_msg(host, broadcast, msg, receive=True):
+    """Send a ddp message and receive the response."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((UDP_IP, UDP_PORT))
-    sock.settimeout(5.0)
+    sock.settimeout(3.0)
 
     if broadcast:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         host = '255.255.255.255'
 
-    msg = get_ddp_search_message()
     sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
 
+    if receive:
+        return sock.recvfrom(1024)
+
+
+def _send_msg(host, broadcast, msg):
+    """Send a ddp message."""
+    _send_recv_msg(host, broadcast, msg, receive=False)
+
+
+def search(host=None, broadcast=True):
+    """Discover PS4s."""
+    msg = get_ddp_search_message()
+    data, addr = _send_recv_msg(host, broadcast, msg)
+
     ps_list = []
-    # TODO: maybe more than one PS4 answers in case of broadcast
-    data, addr = sock.recvfrom(1024)
     data = parse_ddp_response(data.decode('utf-8'))
     data[u'host-ip'] = addr[0]
     ps_list.append(data)
@@ -93,27 +105,11 @@ def get_status(host):
 
 def wakeup(host, credential, broadcast=None):
     """Wakeup PS4s."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((UDP_IP, UDP_PORT))
-    sock.settimeout(5.0)
-
-    if broadcast:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        host = '255.255.255.255'
-
     msg = get_ddp_wake_message(credential)
-    sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
+    _send_msg(host, broadcast, msg)
 
 
 def launch(host, credential, broadcast=None):
     """Launch."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((UDP_IP, UDP_PORT))
-    sock.settimeout(5.0)
-
-    if broadcast:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        host = '255.255.255.255'
-
     msg = get_ddp_launch_message(credential)
-    sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
+    _send_msg(host, broadcast, msg)
