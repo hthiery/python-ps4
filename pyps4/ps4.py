@@ -95,8 +95,7 @@ class Ps4(object):
         STATUS_OK: 200
         STATUS_STANDBY: 620
         """
-        status = self.get_status(self._host)
-        return status['status_code']
+        return self.get_status()['status_code']
 
     def is_running(self):
         return True if self.get_host_status() == 200 else False
@@ -106,23 +105,18 @@ class Ps4(object):
 
     def get_system_version(self):
         """Get the system version."""
-        status = self.get_status()
-        return status['system-version']
+        return self.get_status()['system-version']
 
     def get_host_id(self):
         """Get the host id."""
-        status = self.get_status()
-        return status['host-id']
+        return self.get_status()['host-id']
 
     def get_host_name(self):
         """Get the host name."""
-        status = self.get_status()
-        return status['host-name']
+        return self.get_status()['host-name']
 
     def get_running_app_titleid(self):
-        status = self.get_status()
-        return status['running-app-titleid']
+        return self.get_status()['running-app-titleid']
 
     def get_running_app_name(self):
-        status = self.get_status()
-        return status['running-app-name']
+        return self.get_status()['running-app-name']

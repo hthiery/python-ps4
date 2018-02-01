@@ -74,3 +74,22 @@ class TestPs4(object):
         eq_(playstation.is_standby(), True)
         eq_(playstation.is_standby(), False)
         eq_(playstation.is_standby(), False)
+
+    def test_get_host_id(self):
+        mock = MagicMock()
+        mock.side_effect = [
+            {'host-id': 'test-A'},
+            {'host-name': 'test-B'},
+            {'running-app-titleid': 'test-C'},
+            {'running-app-name': 'test-D'},
+            {'system-version': 'test-E'},
+        ]
+
+        playstation = pyps4.Ps4('10.10.10.10')
+        playstation.get_status = mock
+
+        eq_(playstation.get_host_id(), 'test-A')
+        eq_(playstation.get_host_name(), 'test-B')
+        eq_(playstation.get_running_app_titleid(), 'test-C')
+        eq_(playstation.get_running_app_name(), 'test-D')
+        eq_(playstation.get_system_version(), 'test-E')
