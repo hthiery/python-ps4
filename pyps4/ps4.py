@@ -48,10 +48,11 @@ class Ps4(object):
 
     def open(self):
         """Open a connection to the PS4."""
-        if self.get_host_status() != self.STATUS_OK:
+        if self.is_standby():
             raise NotReady
 
         if not self._connected:
+            self.wakeup()
             self.launch()
             time.sleep(0.5)
             self._connection.connect()
