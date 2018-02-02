@@ -79,18 +79,27 @@ class Ps4(object):
         wakeup(self._host, self._credential)
 
     def login(self):
-        if self._connected:
-            self._connection.login()
+        """Login."""
+        self.open()
+        self._connection.login()
+        self.close()
 
     def standby(self):
-        if self._connected:
-            self._connection.login()
-            self._connection.standby()
+        """Standby."""
+        self.open()
+        self._connection.login()
+        self._connection.standby()
+        self.close()
 
     def start_title(self, title_id):
-        if self._connected:
-            self._connection.login()
-            self._connection.start_title(title_id)
+        """Start title.
+
+        `title_id`: title to start
+        """
+        self.open()
+        self._connection.login()
+        self._connection.start_title(title_id)
+        self.close()
 
     def get_host_status(self):
         """Get PS4 status code.
@@ -101,10 +110,18 @@ class Ps4(object):
         return self.get_status()['status_code']
 
     def is_running(self):
-        return True if self.get_host_status() == 200 else False
+        """Return if the PS4 is running.
+
+        Returns True or False.
+        """
+        return True if self.get_host_status() == self.STATUS_OK else False
 
     def is_standby(self):
-        return True if self.get_host_status() == 620 else False
+        """Return if the PS4 is in standby.
+
+        Returns True or False.
+        """
+        return True if self.get_host_status() == self.STATUS_STANDBY else False
 
     def get_system_version(self):
         """Get the system version."""
@@ -119,7 +136,9 @@ class Ps4(object):
         return self.get_status()['host-name']
 
     def get_running_app_titleid(self):
+        """Return the title Id of the running application."""
         return self.get_status()['running-app-titleid']
 
     def get_running_app_name(self):
+        """Return the name of the running application."""
         return self.get_status()['running-app-name']

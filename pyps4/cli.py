@@ -44,9 +44,7 @@ def cmd_wakeup(playstation, _):
 def cmd_login(playstation, _):
     """Login the PS4."""
     try:
-        playstation.open()
         playstation.login()
-        playstation.close()
     except pyps4.NotReady:
         print('playstaion not ready')
         sys.exit(1)
@@ -55,9 +53,7 @@ def cmd_login(playstation, _):
 def cmd_standby(playstation, _):
     """Set the PS4 in standby."""
     try:
-        playstation.open()
         playstation.standby()
-        playstation.close()
     except pyps4.NotReady:
         print('playstaion not ready')
         sys.exit(1)
@@ -66,9 +62,7 @@ def cmd_standby(playstation, _):
 def cmd_start_title(playstation, args):
     """Set the PS4 in standby."""
     try:
-        playstation.open()
         playstation.start_title(args.title_id)
-        playstation.close()
     except pyps4.NotReady:
         print('playstaion not ready')
         sys.exit(1)
