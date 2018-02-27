@@ -52,7 +52,7 @@ setup(name = name,
         keywords = 'playstation sony ps4',
         install_requires = [
             'construct',
-            'pycrypto',
+            'pycryptodome',
         ],
         entry_points = {
             'console_scripts': [
