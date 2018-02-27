@@ -6,8 +6,8 @@ import logging
 import socket
 
 from construct import (Bytes, Const, Int32ul, Padding, Struct)
-from Crypto.Cipher import AES, PKCS1_OAEP
-from Crypto.PublicKey import RSA
+from Cryptodome.Cipher import AES, PKCS1_OAEP
+from Cryptodome.PublicKey import RSA
 
 _LOGGER = logging.getLogger(__name__)
 

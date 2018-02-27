@@ -53,6 +53,7 @@ setup(name = name,
         install_requires = [
             'construct',
             'pycryptodome',
+            'pycryptodomex',
         ],
         entry_points = {
             'console_scripts': [
