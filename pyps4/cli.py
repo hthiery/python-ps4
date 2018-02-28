@@ -87,6 +87,7 @@ def main(args=None):
                         help='Print version')
 
     _sub = parser.add_subparsers(title='Commands')
+    _sub.required = True
 
     # search all devices
     subparser = _sub.add_parser('search', help='Search for PS4 devices')
@@ -121,6 +122,10 @@ def main(args=None):
     args = parser.parse_args(args)
 
     playstation = None
+
+    if not hasattr(args, 'func'):
+        parser.print_help()
+        sys.exit()
 
     if args.verbose:
         logging.basicConfig()
