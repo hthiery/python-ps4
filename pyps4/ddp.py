@@ -3,13 +3,15 @@ from __future__ import print_function
 
 import re
 import socket
+import logging
 
-UDP_IP = '0.0.0.0'
+UDP_IP = ''
 UDP_PORT = 0
 
 DDP_PORT = 987
 DDP_VERSION = '00020020'
 
+_LOGGER = logging.getLogger(__name__)
 
 def get_ddp_message(msg_type, data=None):
     """Get DDP message."""
@@ -66,18 +68,36 @@ def get_ddp_launch_message(credential):
 
 def _send_recv_msg(host, broadcast, msg, receive=True):
     """Send a ddp message and receive the response."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((UDP_IP, UDP_PORT))
-    sock.settimeout(3.0)
 
-    if broadcast:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        host = '255.255.255.255'
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    except OSError as error:
+        _LOGGER.error('failed to create socket, %s', error)
+        return
+    try:
+        sock.bind((UDP_IP, UDP_PORT))
+        sock.settimeout(3.0)
+    except OSError as error:
+        _LOGGER.error('failed to bind socket %s:%s, %s', UDP_IP, UDP_PORT, error)
+        sock.close()
+        return
 
-    sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
+    try:
+        if broadcast:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            host = '255.255.255.255'
 
-    if receive:
-        return sock.recvfrom(1024)
+        _LOGGER.debug('send_recv_msg %s [%s]', host, msg)
+        sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
+
+        if receive:
+            return sock.recvfrom(1024)
+
+        sock.close()
+    except OSError as error:
+        _LOGGER.error('failed to send data using socket, %s', error)
+        sock.close()
+        return
 
 
 def _send_msg(host, broadcast, msg):
