@@ -9,9 +9,10 @@ The intention for this project is to have a pure python implementation of the `p
 
 Tested with
 -----------
-PS 4 system version `05030061`.
-05030061
-05050031
+PS 4 system version:
+- 5.03 (05030061)
+- 5.05 (05050031)
+- 5.50 (05508011)
 
 Credentials
 -----------
