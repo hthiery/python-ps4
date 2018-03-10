@@ -68,6 +68,15 @@ def cmd_start_title(playstation, args):
         sys.exit(1)
 
 
+def cmd_remote_control(playstation, args):
+    """Send a remote control button."""
+    try:
+        playstation.remote_control(args.button, args.hold_time)
+    except pyps4.NotReady:
+        print('playstaion not ready')
+        sys.exit(1)
+
+
 def main(args=None):
     """The main function."""
     parser = argparse.ArgumentParser(
@@ -118,6 +127,14 @@ def main(args=None):
     subparser.add_argument('title_id', type=str,
                            metavar="TITLE", help='Game title')
     subparser.set_defaults(func=cmd_start_title)
+
+    # remote
+    subparser = _sub.add_parser('remote', help='Send remote control')
+    subparser.add_argument('button', type=str,
+                           metavar="BUTTON", help='button')
+    subparser.add_argument('hold_time', type=int, default=0,
+                           metavar="HOLD_TIME", help='hold time')
+    subparser.set_defaults(func=cmd_remote_control)
 
     args = parser.parse_args(args)
 

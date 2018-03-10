@@ -81,6 +81,14 @@ class Connection(object):
         msg = self._decipher.decrypt(msg)
         _LOGGER.debug('RX: %s %s', len(msg), binascii.hexlify(msg))
 
+    def remote_control(self, op, hold_time=0):
+        """Send reomte control command."""
+        _LOGGER.debug('Remote control: %s (%s)', op, hold_time)
+        self._send_remote_control_request(op, hold_time)
+        #msg = self._recv_msg()
+        #msg = self._decipher.decrypt(msg)
+        #_LOGGER.debug('RX: %s %s', len(msg), binascii.hexlify(msg))
+
     def _send_msg(self, msg, encrypted=False):
         _LOGGER.debug('TX: %s %s', len(msg), binascii.hexlify(msg))
         if encrypted:
@@ -187,4 +195,15 @@ class Connection(object):
         )
 
         msg = fmt.build({'title_id': title_id.encode().ljust(16, b'\x00')})
+        self._send_msg(msg, encrypted=True)
+
+    def _send_remote_control_request(self, op, hold_time=0):
+        fmt = Struct(
+            'length' / Const(b'\x10\x00\x00\x00'),
+            'type' / Const(b'\x1c\x00\x00\x00'),
+            'op' / Int32ul,
+            'hold_time' / Int32ul,
+        )
+
+        msg = fmt.build({'op': op, 'hold_time': hold_time})
         self._send_msg(msg, encrypted=True)
