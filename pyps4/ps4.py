@@ -6,7 +6,7 @@ import time
 
 from .connection import Connection
 from .ddp import get_status, launch, wakeup
-from .errors import NotReady
+from .errors import NotReady, UnknownButton
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,6 +99,54 @@ class Ps4(object):
         self.open()
         self._connection.login()
         self._connection.start_title(title_id)
+        self.close()
+
+    def remote_control(self, button_name, hold_time=0):
+        """ Send a remote control button press.
+
+        Documentation from ps4-waker source:
+        near as I can tell, here's how this works:
+         - For a simple tap, you send the key with holdTime=0,
+           followed by KEY_OFF and holdTime = 0
+         - For a long press/hold, you still send the key with
+           holdTime=0, the follow it with the key again, but
+           specifying holdTime as the hold duration.
+         - After sending a direction, you should send KEY_OFF
+           to clean it up (since it can just be held forever).
+           Doing this after a long-press of PS just breaks it,
+           however.
+        """
+        buttons = []
+        buttons.append(button_name)
+
+        self.open()
+        self._connection.login()
+        self._connection.remote_control(1024, 0)
+
+        for button in buttons:
+            try:
+                operation = {
+                    'up': 1,
+                    'down': 2,
+                    'right': 4,
+                    'left': 8,
+                    'enter': 16,
+                    'back': 32,
+                    'option': 64,
+                    'ps': 128,
+                    'key_off': 256,
+                    'cancel': 512,
+                    'open_rc': 1024,
+                    'close_rc': 2048,
+                }[button.lower()]
+            except KeyError:
+                raise UnknownButton
+
+            self._connection.remote_control(operation, hold_time)
+            self._connection.remote_control(256, 0)
+            time.sleep(0.4)
+
+        self._connection.remote_control(2048, 0)
         self.close()
 
     def get_host_status(self):
