@@ -122,6 +122,7 @@ def get_status(host):
     """Get status."""
     for ps_list in search(host=host):
         return ps_list
+    return []
 
 
 def wakeup(host, credential, broadcast=None):
