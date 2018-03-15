@@ -116,12 +116,12 @@ def search(host=None, broadcast=True):
         data[u'host-ip'] = addr[0]
         ps_list.append(data)
     return ps_list
-    
+
 
 def get_status(host):
     """Get status."""
-    ps_list = search(host=host)
-    return ps_list[0]
+    for ps_list in search(host=host):
+        return ps_list
 
 
 def wakeup(host, credential, broadcast=None):
