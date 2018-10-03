@@ -1,7 +1,7 @@
 Python Library to access PS4
 ============================
 
-|BuildStatus| |PypiVersion| |Coveralls| |CodeClimate|
+|BuildStatus| |PypiVersion| |PyPiPythonVersions| |Coveralls| |CodeClimate|
 
 Motivation
 ----------
@@ -33,6 +33,9 @@ References
                  :target: https://travis-ci.org/hthiery/python-ps4
 .. |PyPiVersion| image:: https://badge.fury.io/py/pyps4.svg
                  :target: http://badge.fury.io/py/pyps4
+.. |PyPiPythonVersions| image:: https://img.shields.io/pypi/pyversions/pyps4.svg
+                        :alt: Python versions
+                        :target: http://badge.fury.io/py/pyps4
 .. |Coveralls|   image:: https://coveralls.io/repos/github/hthiery/python-ps4/badge.svg?branch=master
                  :target: https://coveralls.io/github/hthiery/python-ps4?branch=master
 .. |CodeClimate| image:: https://api.codeclimate.com/v1/badges/193b80aebe76c6d8a2a2/maintainability
