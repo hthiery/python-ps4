@@ -3,13 +3,15 @@ from __future__ import print_function
 
 import re
 import socket
+import logging
 
-UDP_IP = '0.0.0.0'
+UDP_IP = ''
 UDP_PORT = 0
 
 DDP_PORT = 987
 DDP_VERSION = '00020020'
 
+_LOGGER = logging.getLogger(__name__)
 
 def get_ddp_message(msg_type, data=None):
     """Get DDP message."""
@@ -66,18 +68,36 @@ def get_ddp_launch_message(credential):
 
 def _send_recv_msg(host, broadcast, msg, receive=True):
     """Send a ddp message and receive the response."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.bind((UDP_IP, UDP_PORT))
-    sock.settimeout(3.0)
 
-    if broadcast:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        host = '255.255.255.255'
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    except OSError as error:
+        _LOGGER.error('failed to create socket, %s', error)
+        return [ None, host ]
+    try:
+        sock.bind((UDP_IP, UDP_PORT))
+        sock.settimeout(3.0)
+    except OSError as error:
+        _LOGGER.error('failed to bind socket %s:%s, %s', UDP_IP, UDP_PORT, error)
+        sock.close()
+        return [ None, host ]
 
-    sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
+    try:
+        if broadcast:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            host = '255.255.255.255'
 
-    if receive:
-        return sock.recvfrom(1024)
+        _LOGGER.debug('send_recv_msg %s [%s]', host, msg)
+        sock.sendto(msg.encode('utf-8'), (host, DDP_PORT))
+
+        if receive:
+            return sock.recvfrom(1024)
+
+        sock.close()
+    except OSError as error:
+        _LOGGER.error('failed to send data using socket, %s', error)
+        sock.close()
+        return [ None, host ]
 
 
 def _send_msg(host, broadcast, msg):
@@ -87,20 +107,22 @@ def _send_msg(host, broadcast, msg):
 
 def search(host=None, broadcast=True):
     """Discover PS4s."""
-    msg = get_ddp_search_message()
-    data, addr = _send_recv_msg(host, broadcast, msg)
-
     ps_list = []
-    data = parse_ddp_response(data.decode('utf-8'))
-    data[u'host-ip'] = addr[0]
-    ps_list.append(data)
+    msg = get_ddp_search_message()
+
+    data, addr = _send_recv_msg(host, broadcast, msg)
+    if data is not None:
+        data = parse_ddp_response(data.decode('utf-8'))
+        data[u'host-ip'] = addr[0]
+        ps_list.append(data)
     return ps_list
 
 
 def get_status(host):
     """Get status."""
-    ps_list = search(host=host)
-    return ps_list[0]
+    for ps_list in search(host=host):
+        return ps_list
+    return {}
 
 
 def wakeup(host, credential, broadcast=None):
