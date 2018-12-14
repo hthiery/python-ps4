@@ -57,10 +57,13 @@ class Connection(object):
         self._reset_crypto_init_vector()
         self._random_seed = None
 
-    def login(self):
+    def login(self, pin=None):
         """Login."""
         _LOGGER.debug('Login')
-        self._send_login_request()
+        if pin is None:
+            self._send_login_request()
+        else:
+            self._send_login_request(pin)
         msg = self._recv_msg()
         msg = self._decipher.decrypt(msg)
         _LOGGER.debug('RX: %s %s', len(msg), binascii.hexlify(msg))
