@@ -78,10 +78,10 @@ class Ps4(object):
         """Wakeup."""
         wakeup(self._host, self._credential)
 
-    def login(self):
+    def login(self, pin=None):
         """Login."""
         self.open()
-        self._connection.login()
+        self._connection.login(pin)
         self.close()
 
     def standby(self):
