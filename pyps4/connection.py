@@ -150,7 +150,7 @@ class Connection(object):
         msg = fmt.build({'key': key, 'seed': seed})
         self._send_msg(msg)
 
-    def _send_login_request(self):
+    def _send_login_request(self, pin=None):
         fmt = Struct(
             'length' / Const(b'\x80\x01\x00\x00'),
             'type' / Const(b'\x1e\x00\x00\x00'),
@@ -162,13 +162,18 @@ class Connection(object):
             'model' / Bytes(16),
             'pin_code' / Bytes(16),
         )
+        
+        if pin is None:
+            self.pin = b''
+        else:
+            self.pin = pin.encode()
 
         config = {
             'app_label': b'PlayStation'.ljust(256, b'\x00'),
             'account_id': self._credential.encode().ljust(64, b'\x00'),
             'os_version': b'4.4'.ljust(16, b'\x00'),
             'model': b'PS4 Waker'.ljust(16, b'\x00'),
-            'pin_code': b''.ljust(16, b'\x00'),
+            'pin_code': self.pin.ljust(16, b'\x00'),
         }
 
         _LOGGER.debug('config %s', config)
