@@ -165,7 +165,7 @@ class Connection(object):
             'model' / Bytes(16),
             'pin_code' / Bytes(16),
         )
-        
+
         if pin is None:
             self.pin = b''
         else:
