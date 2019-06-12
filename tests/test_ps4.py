@@ -80,7 +80,7 @@ class TestPs4(object):
         mock.side_effect = [
             {'host-id': 'test-A'},
             {'host-name': 'test-B'},
-            {'running-app-titleid': 'test-C'},
+            {'running-app-titleid': 'test-C: C'},
             {'running-app-name': 'test-D'},
             {'system-version': 'test-E'},
         ]
@@ -90,6 +90,6 @@ class TestPs4(object):
 
         eq_(playstation.get_host_id(), 'test-A')
         eq_(playstation.get_host_name(), 'test-B')
-        eq_(playstation.get_running_app_titleid(), 'test-C')
+        eq_(playstation.get_running_app_titleid(), 'test-C: C')
         eq_(playstation.get_running_app_name(), 'test-D')
         eq_(playstation.get_system_version(), 'test-E')
